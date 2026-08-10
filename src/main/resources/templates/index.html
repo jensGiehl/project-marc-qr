@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Marc QR – QR-Codes und eindeutige Code-Listen einfach erstellen">
+    <title>Start · Marc QR</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.7/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="home-page">
+<nav th:replace="~{fragments/layout :: navigation(${activePage})}"></nav>
+
+<main>
+    <section class="home-hero">
+        <div class="container position-relative py-5 py-lg-6">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-7">
+                    <span class="home-kicker"><span aria-hidden="true">●</span> Drei Werkzeuge, ein Zuhause</span>
+                    <h1 class="home-title mt-4">Codes erstellen.<br><span>Einfach richtig.</span></h1>
+                    <p class="home-lead mt-4 mb-0">Vom einzelnen QR-Code bis zur druckfertigen Excel-Liste: Wähle dein Werkzeug und leg direkt los.</p>
+                </div>
+                <div class="col-lg-5 d-none d-lg-block" aria-hidden="true">
+                    <div class="hero-visual ms-auto">
+                        <div class="hero-orbit orbit-one"></div>
+                        <div class="hero-orbit orbit-two"></div>
+                        <div class="hero-code-grid">
+                            <span class="finder finder-a"></span>
+                            <span class="finder finder-b"></span>
+                            <span class="finder finder-c"></span>
+                            <span class="pixel pixel-a"></span>
+                            <span class="pixel pixel-b"></span>
+                            <span class="pixel pixel-c"></span>
+                            <span class="pixel pixel-d"></span>
+                        </div>
+                        <span class="hero-spark spark-one">✦</span>
+                        <span class="hero-spark spark-two">✦</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container home-services py-5 py-lg-6" aria-labelledby="servicesTitle">
+        <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between gap-3 mb-4 mb-lg-5">
+            <div>
+                <span class="eyebrow">Werkzeuge</span>
+                <h2 class="display-6 fw-bold mt-2 mb-0" id="servicesTitle">Was möchtest du erstellen?</h2>
+            </div>
+            <p class="text-body-secondary mb-0 service-hint">Jeder Service öffnet sich in einem neuen Tab.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-xl-4">
+                <a class="service-card service-card-purple" th:href="@{/qr}" target="_blank" rel="noopener noreferrer"
+                   aria-label="Einzelnen QR-Code erstellen – öffnet in einem neuen Tab">
+                    <span class="service-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" role="img">
+                            <rect x="7" y="7" width="13" height="13" rx="2"></rect>
+                            <rect x="28" y="7" width="13" height="13" rx="2"></rect>
+                            <rect x="7" y="28" width="13" height="13" rx="2"></rect>
+                            <path d="M29 29h5v5h-5zm7 0h5v12h-5zm-7 7h5v5h-5z"></path>
+                        </svg>
+                    </span>
+                    <span class="service-number">01</span>
+                    <span class="service-content">
+                        <span class="service-label">Live gestalten</span>
+                        <span class="service-title">QR-Code</span>
+                        <span class="service-description">Text, Link, E-Mail oder Telefonnummer eingeben, Farben und Logo wählen und das Ergebnis sofort als PNG laden.</span>
+                    </span>
+                    <span class="service-action">Service öffnen <span aria-hidden="true">↗</span></span>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-xl-4">
+                <a class="service-card service-card-mint" th:href="@{/qr/batch}" target="_blank" rel="noopener noreferrer"
+                   aria-label="QR-Code-Stapel erstellen – öffnet in einem neuen Tab">
+                    <span class="service-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" role="img">
+                            <rect x="6" y="9" width="25" height="25" rx="4"></rect>
+                            <path d="M14 17h9v9h-9zM36 15v20a5 5 0 0 1-5 5H12"></path>
+                            <path d="M36 9h6M39 6v6"></path>
+                        </svg>
+                    </span>
+                    <span class="service-number">02</span>
+                    <span class="service-content">
+                        <span class="service-label">Viele auf einmal</span>
+                        <span class="service-title">QR-Stapel</span>
+                        <span class="service-description">Mehrere Zeilen einfügen und passende QR-Codes gesammelt erzeugen. Webseiten und E-Mails werden automatisch erkannt.</span>
+                    </span>
+                    <span class="service-action">Service öffnen <span aria-hidden="true">↗</span></span>
+                </a>
+            </div>
+
+            <div class="col-md-6 col-xl-4">
+                <a class="service-card service-card-coral" th:href="@{/codes}" target="_blank" rel="noopener noreferrer"
+                   aria-label="Zufallscodes als Excel erstellen – öffnet in einem neuen Tab">
+                    <span class="service-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" role="img">
+                            <path d="M10 6h22l7 7v29H10z"></path>
+                            <path d="M32 6v8h7M16 22h17M16 29h17M16 36h11"></path>
+                            <path d="M4 17h12v12H4z"></path>
+                            <path d="m7 20 6 6m0-6-6 6"></path>
+                        </svg>
+                    </span>
+                    <span class="service-number">03</span>
+                    <span class="service-content">
+                        <span class="service-label">Eindeutig & exportbereit</span>
+                        <span class="service-title">Code-Excel</span>
+                        <span class="service-description">Zeichensatz und Regeln festlegen, eindeutige Zufallscodes generieren und als formatierte Excel-Datei herunterladen.</span>
+                    </span>
+                    <span class="service-action">Service öffnen <span aria-hidden="true">↗</span></span>
+                </a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:src="@{/webjars/bootstrap/5.3.7/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

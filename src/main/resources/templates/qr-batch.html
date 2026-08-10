@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Viele QR-Codes auf einmal erstellen">
+    <title>QR-Stapel erstellen · Marc QR</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.7/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/layout :: navigation(${activePage})}"></nav>
+
+<main class="container py-4 py-lg-5">
+    <header class="hero-copy mb-4 mb-lg-5">
+        <span class="eyebrow">Stapelverarbeitung</span>
+        <h1 class="display-5 fw-bold mt-2">Eine Zeile, ein QR-Code.</h1>
+        <p class="lead text-body-secondary mb-0">Webadressen und E-Mail-Adressen werden automatisch erkannt. Leere Zeilen überspringen wir.</p>
+    </header>
+
+    <section class="card app-card border-0 mb-4">
+        <div class="card-body p-4 p-lg-5">
+            <form id="batchForm" novalidate>
+                <div class="row g-4">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold" for="batchLines">Inhalte <span class="text-body-secondary fw-normal">(maximal 100)</span></label>
+                        <textarea class="form-control font-monospace" id="batchLines" rows="8" placeholder="https://example.org&#10;hallo@example.org&#10;Einfacher Text"></textarea>
+                        <div class="d-flex justify-content-between mt-2 small">
+                            <span class="text-body-secondary">Jede nicht leere Zeile wird separat verarbeitet.</span>
+                            <span id="lineCounter">0 / 100</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <label class="form-label fw-semibold" for="batchSize">Größe</label>
+                        <div class="input-group">
+                            <input class="form-control" id="batchSize" type="number" min="160" max="1200" step="20" value="300">
+                            <span class="input-group-text">px</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3 col-lg-2">
+                        <label class="form-label fw-semibold" for="batchForeground">QR-Farbe</label>
+                        <input class="form-control form-control-color w-100" id="batchForeground" type="color" value="#132238">
+                    </div>
+                    <div class="col-6 col-sm-3 col-lg-2">
+                        <label class="form-label fw-semibold" for="batchBackground">Hintergrund</label>
+                        <input class="form-control form-control-color w-100" id="batchBackground" type="color" value="#ffffff">
+                    </div>
+                    <div class="col-lg-5">
+                        <label class="form-label fw-semibold" for="batchLogo">Logo <span class="text-body-secondary fw-normal">(optional)</span></label>
+                        <input class="form-control" id="batchLogo" type="file" accept="image/png,image/jpeg">
+                    </div>
+                    <div class="col-12 d-grid d-sm-flex align-items-center gap-3">
+                        <button class="btn btn-primary btn-lg px-5" id="generateBatch" type="submit">
+                            QR-Codes erzeugen
+                        </button>
+                        <span class="text-body-secondary small" id="batchStatus" aria-live="polite"></span>
+                    </div>
+                </div>
+            </form>
+            <div class="alert alert-danger mt-4 mb-0 d-none" id="batchError" role="alert"></div>
+        </div>
+    </section>
+
+    <section class="card app-card border-0 d-none" id="batchResults" aria-labelledby="resultTitle">
+        <div class="card-body p-0">
+            <div class="p-4 p-lg-5 pb-lg-3 d-flex flex-wrap gap-3 justify-content-between align-items-end">
+                <div>
+                    <span class="eyebrow">Ergebnis</span>
+                    <h2 class="h3 mb-0 mt-1" id="resultTitle">Erzeugte QR-Codes</h2>
+                </div>
+                <span class="badge rounded-pill text-bg-light fs-6" id="resultCount"></span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 batch-table">
+                    <thead><tr><th scope="col">QR-Code</th><th scope="col">Erkannter Inhalt</th><th scope="col" class="text-end">Download</th></tr></thead>
+                    <tbody id="batchResultBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:src="@{/webjars/bootstrap/5.3.7/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/qr-batch.js}"></script>
+</body>
+</html>

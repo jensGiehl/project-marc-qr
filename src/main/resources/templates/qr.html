@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="QR-Codes live erstellen, gestalten und herunterladen">
+    <title>QR-Code erstellen · Marc QR</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.7/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/layout :: navigation(${activePage})}"></nav>
+
+<main class="container py-4 py-lg-5">
+    <header class="hero-copy mb-4 mb-lg-5">
+        <span class="eyebrow">Live-Vorschau</span>
+        <h1 class="display-5 fw-bold mt-2">Dein QR-Code. Genau dein Stil.</h1>
+        <p class="lead text-body-secondary mb-0">Inhalt wählen, Farben anpassen und sofort als PNG herunterladen.</p>
+    </header>
+
+    <div class="row g-4 align-items-start">
+        <div class="col-lg-7">
+            <section class="card app-card border-0">
+                <div class="card-body p-4 p-lg-5">
+                    <form id="qrForm" novalidate>
+                        <div class="row g-4">
+                            <div class="col-12">
+                                <label class="form-label fw-semibold" for="contentType">Inhaltstyp</label>
+                                <select class="form-select form-select-lg" id="contentType">
+                                    <option value="text">Text</option>
+                                    <option value="url" selected>Webadresse</option>
+                                    <option value="email">E-Mail</option>
+                                    <option value="phone">Telefon</option>
+                                    <option value="sms">SMS</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold" id="contentLabel" for="contentValue">Webadresse</label>
+                                <textarea class="form-control" id="contentValue" rows="4"
+                                          placeholder="https://example.org" spellcheck="false">https://example.org</textarea>
+                                <div class="d-flex justify-content-between gap-3 mt-2 small">
+                                    <span class="text-body-secondary" id="contentHint">Eine vollständige oder kurze Webadresse.</span>
+                                    <span class="capacity-counter text-nowrap" id="capacityCounter" aria-live="polite"></span>
+                                </div>
+                            </div>
+                            <div class="col-12 d-none" id="messageGroup">
+                                <label class="form-label fw-semibold" id="messageLabel" for="messageValue">Nachricht</label>
+                                <textarea class="form-control" id="messageValue" rows="3" maxlength="500"></textarea>
+                            </div>
+
+                            <div class="col-12"><hr class="my-0"></div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold" for="qrSize">Größe</label>
+                                <div class="input-group">
+                                    <input class="form-control" id="qrSize" type="number" min="160" max="1200" step="20" value="360">
+                                    <span class="input-group-text">px</span>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label fw-semibold" for="foreground">QR-Farbe</label>
+                                <input class="form-control form-control-color w-100" id="foreground" type="color" value="#132238" title="QR-Farbe">
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label fw-semibold" for="background">Hintergrund</label>
+                                <input class="form-control form-control-color w-100" id="background" type="color" value="#ffffff" title="Hintergrundfarbe">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold" for="logo">Logo in der Mitte <span class="fw-normal text-body-secondary">(optional)</span></label>
+                                <input class="form-control" id="logo" type="file" accept="image/png,image/jpeg">
+                                <div class="form-text">PNG oder JPG, maximal 2 MB. Mit Logo wird eine stärkere Fehlerkorrektur verwendet.</div>
+                                <button class="btn btn-sm btn-link px-0 d-none" id="removeLogo" type="button">Logo entfernen</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-lg-5">
+            <section class="card app-card preview-card border-0 position-sticky-lg" aria-labelledby="previewTitle">
+                <div class="card-body p-4 p-lg-5 text-center">
+                    <div class="d-flex justify-content-between align-items-center mb-4 text-start">
+                        <div>
+                            <span class="eyebrow">Vorschau</span>
+                            <h2 class="h5 mb-0 mt-1" id="previewTitle">Bereit zum Scannen</h2>
+                        </div>
+                        <span class="live-dot"><span></span> live</span>
+                    </div>
+                    <div class="qr-stage mx-auto" id="qrStage">
+                        <div class="spinner-border text-primary" id="qrSpinner" role="status"><span class="visually-hidden">QR-Code wird erstellt</span></div>
+                        <img class="img-fluid d-none" id="qrPreview" alt="Vorschau des QR-Codes">
+                    </div>
+                    <div class="alert alert-danger mt-3 d-none text-start" id="qrError" role="alert"></div>
+                    <a class="btn btn-primary btn-lg w-100 mt-4 disabled" id="downloadQr" download="qr-code.png" aria-disabled="true">
+                        PNG herunterladen
+                    </a>
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:src="@{/webjars/bootstrap/5.3.7/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/qr.js}"></script>
+</body>
+</html>

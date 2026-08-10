@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Eindeutige Zufallscodes als Excel-Datei erzeugen">
+    <title>Code-Excel erstellen · Marc QR</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.7/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<nav th:replace="~{fragments/layout :: navigation(${activePage})}"></nav>
+
+<main class="container py-4 py-lg-5">
+    <header class="hero-copy mb-4 mb-lg-5">
+        <span class="eyebrow">Excel-Export</span>
+        <h1 class="display-5 fw-bold mt-2">Eindeutige Codes, fix und fertig.</h1>
+        <p class="lead text-body-secondary mb-0">Zeichen auswählen, Regeln festlegen und eine sauber formatierte Excel-Datei erhalten.</p>
+    </header>
+
+    <form class="card app-card border-0" id="codeForm" method="post" th:action="@{/codes/excel}" novalidate>
+        <div class="card-body p-4 p-lg-5">
+            <section aria-labelledby="charactersTitle">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-3">
+                    <div>
+                        <span class="eyebrow">1 · Zeichensatz</span>
+                        <h2 class="h4 mb-0 mt-1" id="charactersTitle">Erlaubte Zeichen</h2>
+                    </div>
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Schnellauswahl">
+                        <button class="btn btn-outline-secondary" type="button" id="selectRecommended">Empfohlen</button>
+                        <button class="btn btn-outline-secondary" type="button" id="selectAll">Alle</button>
+                        <button class="btn btn-outline-secondary" type="button" id="selectNone">Keine</button>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="small fw-semibold text-body-secondary mb-2">Zahlen</div>
+                    <div class="character-grid" id="digitGrid">
+                        <label class="character-option" th:each="digit : ${#numbers.sequence(0, 9)}">
+                            <input class="btn-check character-input" type="checkbox" name="characters"
+                                   th:id="${'char-' + digit}" th:value="${digit}" th:checked="${digit != 0 and digit != 1}">
+                            <span class="character-tile" th:text="${digit}">2</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="small fw-semibold text-body-secondary mb-2">Buchstaben</div>
+                    <div class="character-grid letter-grid" id="letterGrid">
+                        <label class="character-option" th:each="letter : ${#strings.arraySplit('A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z', ',')}">
+                            <input class="btn-check character-input" type="checkbox" name="characters"
+                                   th:id="${'char-' + letter}" th:value="${letter}" th:checked="${letter != 'O'}">
+                            <span class="character-tile" th:text="${letter}">A</span>
+                        </label>
+                    </div>
+                    <div class="form-text mt-2">0, 1 und O sind standardmäßig deaktiviert, damit Codes leichter lesbar bleiben.</div>
+                </div>
+            </section>
+
+            <hr class="my-5">
+
+            <section aria-labelledby="rulesTitle">
+                <span class="eyebrow">2 · Regeln</span>
+                <h2 class="h4 mb-4 mt-1" id="rulesTitle">Länge und Menge</h2>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold" for="codeLength">Codelänge</label>
+                        <input class="form-control form-control-lg" id="codeLength" name="length" type="number" min="1" max="32" value="4" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold" for="maxDigits">Maximale Anzahl Ziffern</label>
+                        <input class="form-control form-control-lg" id="maxDigits" name="maxDigits" type="number" min="0" max="4" value="1" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold" for="codeCount">Anzahl Codes</label>
+                        <input class="form-control form-control-lg" id="codeCount" name="count" type="number" min="1" max="100000" value="100" required>
+                    </div>
+                    <div class="col-12">
+                        <div class="possibility-panel d-flex flex-column flex-sm-row gap-3 align-items-sm-center justify-content-between">
+                            <div>
+                                <div class="small text-uppercase fw-semibold text-body-secondary">Mögliche eindeutige Codes</div>
+                                <div class="fs-3 fw-bold" id="possibilityCount">–</div>
+                            </div>
+                            <div class="text-sm-end small text-body-secondary">Der Export ist auf 100.000 Zeilen begrenzt.</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="alert alert-danger d-none mb-0" id="codeError" role="alert"></div>
+                    </div>
+                    <div class="col-12 d-grid d-sm-flex align-items-center gap-3">
+                        <input type="hidden" id="downloadToken" name="downloadToken">
+                        <button class="btn btn-primary btn-lg px-5" id="generateCodes" type="submit">Excel generieren</button>
+                        <span class="text-body-secondary small">Die Beschreibungsspalte bleibt für deine Ergänzungen frei.</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </form>
+</main>
+
+<div class="modal fade" id="waitingModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="waitingTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-body p-5 text-center">
+                <div class="spinner-border text-primary mb-4" role="status"><span class="visually-hidden">Bitte warten</span></div>
+                <h2 class="h4" id="waitingTitle">Bitte warten …</h2>
+                <p class="text-body-secondary mb-0">Wir würfeln eindeutige Codes und bauen deine Excel-Datei.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script th:src="@{/webjars/bootstrap/5.3.7/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/codes.js}"></script>
+</body>
+</html>

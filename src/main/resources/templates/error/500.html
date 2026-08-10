@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>500 · Technik-Knoten</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.7/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="error-page">
+<main class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+    <section class="error-card text-center">
+        <div class="error-code">500</div>
+        <div class="broken-qr wiggle" aria-hidden="true">⚙</div>
+        <h1 class="display-6 fw-bold">Da hat sich ein Bit verknotet.</h1>
+        <p class="lead text-body-secondary">Unser Server entwirrt gerade die Kabel. Ein neuer Versuch wirkt oft Wunder.</p>
+        <a class="btn btn-primary btn-lg mt-3" th:href="@{/qr}">Nochmal von vorn</a>
+    </section>
+</main>
+</body>
+</html>

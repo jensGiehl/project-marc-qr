@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>404 · QR-Code ausgebüxt</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.7/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="error-page">
+<main class="container min-vh-100 d-flex align-items-center justify-content-center py-5">
+    <section class="error-card text-center">
+        <div class="error-code">404</div>
+        <div class="broken-qr" aria-hidden="true">▦<span>?</span></div>
+        <h1 class="display-6 fw-bold">Dieser QR-Code ist wohl abgebogen.</h1>
+        <p class="lead text-body-secondary">Die gesuchte Seite scannt gerade woanders. Vielleicht findet sie später zurück.</p>
+        <a class="btn btn-primary btn-lg mt-3" th:href="@{/qr}">Zurück zum Generator</a>
+    </section>
+</main>
+</body>
+</html>
