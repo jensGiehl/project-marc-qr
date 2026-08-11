@@ -27,19 +27,19 @@
                             <div class="col-12">
                                 <label class="form-label fw-semibold" for="contentType">Inhaltstyp</label>
                                 <select class="form-select form-select-lg" id="contentType">
-                                    <option value="text">Text</option>
-                                    <option value="url" selected>Webadresse</option>
+                                    <option value="text" selected>Text</option>
+                                    <option value="url">Webadresse</option>
                                     <option value="email">E-Mail</option>
                                     <option value="phone">Telefon</option>
                                     <option value="sms">SMS</option>
                                 </select>
                             </div>
                             <div class="col-12">
-                                <label class="form-label fw-semibold" id="contentLabel" for="contentValue">Webadresse</label>
+                                <label class="form-label fw-semibold" id="contentLabel" for="contentValue">Text</label>
                                 <textarea class="form-control" id="contentValue" rows="4"
-                                          placeholder="https://example.org" spellcheck="false">https://example.org</textarea>
+                                          placeholder="Was soll im QR-Code stehen?" spellcheck="false"></textarea>
                                 <div class="d-flex justify-content-between gap-3 mt-2 small">
-                                    <span class="text-body-secondary" id="contentHint">Eine vollständige oder kurze Webadresse.</span>
+                                    <span class="text-body-secondary" id="contentHint">Freier Text, Zahlen oder kurze Hinweise.</span>
                                     <span class="capacity-counter text-nowrap" id="capacityCounter" aria-live="polite"></span>
                                 </div>
                             </div>
@@ -64,6 +64,24 @@
                             <div class="col-6 col-md-3">
                                 <label class="form-label fw-semibold" for="background">Hintergrund</label>
                                 <input class="form-control form-control-color w-100" id="background" type="color" value="#ffffff" title="Hintergrundfarbe">
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label class="form-label fw-semibold" for="cornerRadius">QR-Eckenrundung</label>
+                                    <output class="badge rounded-pill text-bg-light" id="cornerRadiusValue" for="cornerRadius">0 %</output>
+                                </div>
+                                <input class="form-range" id="cornerRadius" type="range" min="0" max="50" step="5" value="0"
+                                       aria-describedby="cornerRadiusHint">
+                                <div class="form-text mt-0" id="cornerRadiusHint">Rundet die Module und Markierungen des QR-Codes.</div>
+                            </div>
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <label class="form-label fw-semibold" for="imageCornerRadius">Bild-Eckenrundung</label>
+                                    <output class="badge rounded-pill text-bg-light" id="imageCornerRadiusValue" for="imageCornerRadius">4 %</output>
+                                </div>
+                                <input class="form-range" id="imageCornerRadius" type="range" min="0" max="25" step="1" value="4"
+                                       aria-describedby="imageCornerRadiusHint">
+                                <div class="form-text mt-0" id="imageCornerRadiusHint">Rundet nur die Außenkante des PNG-Bildes transparent ab.</div>
                             </div>
                             <div class="col-12">
                                 <label class="form-label fw-semibold" for="logo">Logo in der Mitte <span class="fw-normal text-body-secondary">(optional)</span></label>
@@ -103,6 +121,7 @@
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <script th:src="@{/webjars/bootstrap/5.3.7/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/qr-filename.js}"></script>
 <script th:src="@{/js/qr.js}"></script>
 </body>
 </html>

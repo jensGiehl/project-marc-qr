@@ -10,6 +10,10 @@
     const resultSection = document.querySelector('#batchResults');
     const resultBody = document.querySelector('#batchResultBody');
     const resultCount = document.querySelector('#resultCount');
+    const cornerRadius = document.querySelector('#batchCornerRadius');
+    const cornerRadiusValue = document.querySelector('#batchCornerRadiusValue');
+    const imageCornerRadius = document.querySelector('#batchImageCornerRadius');
+    const imageCornerRadiusValue = document.querySelector('#batchImageCornerRadiusValue');
 
     function nonEmptyLines() {
         return lines.value.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
@@ -39,6 +43,8 @@
         data.append('size', document.querySelector('#batchSize').value);
         data.append('foreground', document.querySelector('#batchForeground').value);
         data.append('background', document.querySelector('#batchBackground').value);
+        data.append('cornerRadius', cornerRadius.value);
+        data.append('imageCornerRadius', imageCornerRadius.value);
         const logo = document.querySelector('#batchLogo').files[0];
         if (logo) data.append('logo', logo);
 
@@ -62,7 +68,7 @@
 
     function renderResults(items) {
         resultBody.replaceChildren();
-        items.forEach((item, index) => {
+        items.forEach(item => {
             const row = document.createElement('tr');
 
             const imageCell = document.createElement('td');
@@ -86,7 +92,7 @@
             const link = document.createElement('a');
             link.className = 'btn btn-outline-primary btn-sm';
             link.href = image.src;
-            link.download = `qr-code-${index + 1}.png`;
+            link.download = QrFilename.create(item.input, item.type === 'Webseite');
             link.textContent = 'PNG';
             downloadCell.append(link);
 
@@ -104,5 +110,7 @@
     }
 
     lines.addEventListener('input', updateLineCounter);
+    cornerRadius.addEventListener('input', () => cornerRadiusValue.value = `${cornerRadius.value} %`);
+    imageCornerRadius.addEventListener('input', () => imageCornerRadiusValue.value = `${imageCornerRadius.value} %`);
     updateLineCounter();
 })();

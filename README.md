@@ -22,10 +22,12 @@ Die Startseite öffnet jeden ausgewählten Service in einem neuen Browser-Tab.
 - zeitnah aktualisierte Live-Vorschau
 - Größe von 160 bis 1.200 Pixeln
 - frei wählbare Vorder- und Hintergrundfarbe
+- einstellbare QR-Eckenrundung von quadratisch bis stark gerundet; standardmäßig quadratisch
+- separate Bild-Eckenrundung mit transparenten Außenecken; standardmäßig dezent auf 4 Prozent
 - optionales Logo in der Mitte (PNG oder JPG bis 2 MB)
 - automatische stärkere Fehlerkorrektur bei Verwendung eines Logos
 - Kapazitätsanzeige und serverseitige Prüfung passend zu Inhalt und Fehlerkorrektur
-- Download als PNG
+- Download als PNG mit einem aus dem Inhalt abgeleiteten, bereinigten Dateinamen; bei Webadressen wird nur die Domain verwendet
 - Stapelerzeugung für bis zu 100 nicht leere Zeilen; Web- und E-Mail-Adressen werden automatisch erkannt
 
 ### Zufallscodes und Excel

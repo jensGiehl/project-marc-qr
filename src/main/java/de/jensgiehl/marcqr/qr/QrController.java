@@ -44,8 +44,11 @@ public class QrController {
             @RequestParam(defaultValue = "360") int size,
             @RequestParam(defaultValue = "#132238") String foreground,
             @RequestParam(defaultValue = "#ffffff") String background,
+            @RequestParam(defaultValue = "0") int cornerRadius,
+            @RequestParam(defaultValue = "4") int imageCornerRadius,
             @RequestParam(required = false) MultipartFile logo) throws IOException {
-        byte[] png = qrCodeService.generate(content, new QrSettings(size, foreground, background), readLogo(logo));
+        byte[] png = qrCodeService.generate(content,
+                new QrSettings(size, foreground, background, cornerRadius, imageCornerRadius), readLogo(logo));
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())
                 .contentType(MediaType.IMAGE_PNG)
@@ -59,8 +62,11 @@ public class QrController {
             @RequestParam(defaultValue = "300") int size,
             @RequestParam(defaultValue = "#132238") String foreground,
             @RequestParam(defaultValue = "#ffffff") String background,
+            @RequestParam(defaultValue = "0") int cornerRadius,
+            @RequestParam(defaultValue = "4") int imageCornerRadius,
             @RequestParam(required = false) MultipartFile logo) throws IOException {
-        return batchQrService.generate(lines, new QrSettings(size, foreground, background), readLogo(logo));
+        return batchQrService.generate(lines,
+                new QrSettings(size, foreground, background, cornerRadius, imageCornerRadius), readLogo(logo));
     }
 
     private byte[] readLogo(MultipartFile logo) throws IOException {

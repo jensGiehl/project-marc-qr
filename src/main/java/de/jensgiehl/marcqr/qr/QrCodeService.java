@@ -9,6 +9,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
+import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -23,6 +24,8 @@ import java.util.Map;
 public class QrCodeService {
 
     public static final int MAX_LOGO_BYTES = 2 * 1024 * 1024;
+    private static final int QR_MARGIN = 2;
+    private static final int FINDER_PATTERN_SIZE = 7;
 
     public byte[] generate(String content, QrSettings settings, byte[] logoBytes) {
         validateContent(content, logoBytes != null && logoBytes.length > 0);
@@ -33,10 +36,9 @@ public class QrCodeService {
                     EncodeHintType.CHARACTER_SET, "UTF-8",
                     EncodeHintType.ERROR_CORRECTION,
                     logo == null ? ErrorCorrectionLevel.M : ErrorCorrectionLevel.H,
-                    EncodeHintType.MARGIN, 2
+                    EncodeHintType.MARGIN, QR_MARGIN
             );
-            BitMatrix matrix = new QRCodeWriter().encode(
-                    content, BarcodeFormat.QR_CODE, settings.size(), settings.size(), hints);
+            BitMatrix matrix = new QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, 0, 0, hints);
             BufferedImage image = render(matrix, settings);
             if (logo != null) {
                 overlayLogo(image, logo);
@@ -81,15 +83,106 @@ public class QrCodeService {
     }
 
     private BufferedImage render(BitMatrix matrix, QrSettings settings) {
-        int foreground = Color.decode(settings.foreground()).getRGB();
-        int background = Color.decode(settings.background()).getRGB();
-        BufferedImage image = new BufferedImage(matrix.getWidth(), matrix.getHeight(), BufferedImage.TYPE_INT_RGB);
-        for (int y = 0; y < matrix.getHeight(); y++) {
-            for (int x = 0; x < matrix.getWidth(); x++) {
-                image.setRGB(x, y, matrix.get(x, y) ? foreground : background);
+        Color foreground = Color.decode(settings.foreground());
+        Color background = Color.decode(settings.background());
+        BufferedImage image = new BufferedImage(settings.size(), settings.size(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = image.createGraphics();
+        try {
+            renderImageBackground(graphics, settings, background);
+            graphics.setColor(foreground);
+            if (settings.cornerRadius() == 0) {
+                renderSquareModules(matrix, settings.size(), graphics);
+            } else {
+                renderRoundedModules(matrix, settings, graphics, foreground, background);
             }
+        } finally {
+            graphics.dispose();
         }
         return image;
+    }
+
+    private void renderImageBackground(Graphics2D graphics, QrSettings settings, Color background) {
+        graphics.setComposite(AlphaComposite.Src);
+        graphics.setColor(new Color(background.getRed(), background.getGreen(), background.getBlue(), 0));
+        graphics.fillRect(0, 0, settings.size(), settings.size());
+        graphics.setColor(background);
+        if (settings.imageCornerRadius() == 0) {
+            graphics.fillRect(0, 0, settings.size(), settings.size());
+        } else {
+            graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            double arcSize = settings.size() * settings.imageCornerRadius() / 50.0;
+            fillRoundedSquare(graphics, 0, 0, settings.size(), arcSize);
+        }
+        graphics.setComposite(AlphaComposite.SrcOver);
+    }
+
+    private void renderSquareModules(BitMatrix matrix, int size, Graphics2D graphics) {
+        double moduleSize = (double) size / matrix.getWidth();
+        for (int y = 0; y < matrix.getHeight(); y++) {
+            for (int x = 0; x < matrix.getWidth(); x++) {
+                if (matrix.get(x, y)) {
+                    int left = (int) Math.floor(x * moduleSize);
+                    int top = (int) Math.floor(y * moduleSize);
+                    int right = (int) Math.ceil((x + 1) * moduleSize);
+                    int bottom = (int) Math.ceil((y + 1) * moduleSize);
+                    graphics.fillRect(left, top, right - left, bottom - top);
+                }
+            }
+        }
+    }
+
+    private void renderRoundedModules(BitMatrix matrix, QrSettings settings, Graphics2D graphics,
+                                      Color foreground, Color background) {
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        double moduleSize = (double) settings.size() / matrix.getWidth();
+        double arcSize = moduleSize * settings.cornerRadius() / 50.0;
+        for (int y = 0; y < matrix.getHeight(); y++) {
+            for (int x = 0; x < matrix.getWidth(); x++) {
+                if (matrix.get(x, y) && !isFinderPattern(x, y, matrix.getWidth())) {
+                    graphics.fill(new RoundRectangle2D.Double(
+                            x * moduleSize, y * moduleSize, moduleSize, moduleSize, arcSize, arcSize));
+                }
+            }
+        }
+        renderFinderPatterns(matrix.getWidth(), moduleSize, settings.cornerRadius(),
+                graphics, foreground, background);
+    }
+
+    private void renderFinderPatterns(int matrixSize, double moduleSize, int cornerRadius,
+                                      Graphics2D graphics, Color foreground, Color background) {
+        int farFinderStart = matrixSize - QR_MARGIN - FINDER_PATTERN_SIZE;
+        renderFinderPattern(QR_MARGIN, QR_MARGIN, moduleSize, cornerRadius, graphics, foreground, background);
+        renderFinderPattern(farFinderStart, QR_MARGIN, moduleSize, cornerRadius, graphics, foreground, background);
+        renderFinderPattern(QR_MARGIN, farFinderStart, moduleSize, cornerRadius, graphics, foreground, background);
+    }
+
+    private void renderFinderPattern(int moduleX, int moduleY, double moduleSize, int cornerRadius,
+                                     Graphics2D graphics, Color foreground, Color background) {
+        double rounding = (double) cornerRadius / QrSettings.MAX_CORNER_RADIUS;
+        double x = moduleX * moduleSize;
+        double y = moduleY * moduleSize;
+
+        graphics.setColor(foreground);
+        fillRoundedSquare(graphics, x, y, 7 * moduleSize, 3 * moduleSize * rounding);
+        graphics.setColor(background);
+        fillRoundedSquare(graphics, x + moduleSize, y + moduleSize,
+                5 * moduleSize, 2.4 * moduleSize * rounding);
+        graphics.setColor(foreground);
+        fillRoundedSquare(graphics, x + 2 * moduleSize, y + 2 * moduleSize,
+                3 * moduleSize, 2 * moduleSize * rounding);
+    }
+
+    private void fillRoundedSquare(Graphics2D graphics, double x, double y, double size, double arcSize) {
+        graphics.fill(new RoundRectangle2D.Double(x, y, size, size, arcSize, arcSize));
+    }
+
+    private boolean isFinderPattern(int x, int y, int matrixSize) {
+        int farFinderStart = matrixSize - QR_MARGIN - FINDER_PATTERN_SIZE;
+        boolean atTop = y >= QR_MARGIN && y < QR_MARGIN + FINDER_PATTERN_SIZE;
+        boolean atLeft = x >= QR_MARGIN && x < QR_MARGIN + FINDER_PATTERN_SIZE;
+        boolean atRight = x >= farFinderStart && x < farFinderStart + FINDER_PATTERN_SIZE;
+        boolean atBottom = y >= farFinderStart && y < farFinderStart + FINDER_PATTERN_SIZE;
+        return atTop && (atLeft || atRight) || atBottom && atLeft;
     }
 
     private void overlayLogo(BufferedImage qrCode, BufferedImage logo) {

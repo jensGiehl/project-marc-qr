@@ -16,6 +16,10 @@
     const error = document.querySelector('#qrError');
     const counter = document.querySelector('#capacityCounter');
     const download = document.querySelector('#downloadQr');
+    const cornerRadius = document.querySelector('#cornerRadius');
+    const cornerRadiusValue = document.querySelector('#cornerRadiusValue');
+    const imageCornerRadius = document.querySelector('#imageCornerRadius');
+    const imageCornerRadiusValue = document.querySelector('#imageCornerRadiusValue');
     let currentUrl;
     let controller;
     let debounceTimer;
@@ -95,6 +99,8 @@
         data.append('size', document.querySelector('#qrSize').value);
         data.append('foreground', document.querySelector('#foreground').value);
         data.append('background', document.querySelector('#background').value);
+        data.append('cornerRadius', cornerRadius.value);
+        data.append('imageCornerRadius', imageCornerRadius.value);
         if (logo.files[0]) data.append('logo', logo.files[0]);
 
         try {
@@ -109,6 +115,7 @@
             currentUrl = objectUrl;
             preview.src = objectUrl;
             preview.classList.remove('d-none');
+            download.download = QrFilename.create(value.value.trim(), type.value === 'url');
             setDownload(objectUrl);
         } catch (requestError) {
             if (requestError.name !== 'AbortError') {
@@ -147,6 +154,8 @@
         removeLogo.classList.add('d-none');
         scheduleRender();
     });
+    cornerRadius.addEventListener('input', () => cornerRadiusValue.value = `${cornerRadius.value} %`);
+    imageCornerRadius.addEventListener('input', () => imageCornerRadiusValue.value = `${imageCornerRadius.value} %`);
     window.addEventListener('beforeunload', () => currentUrl && URL.revokeObjectURL(currentUrl));
 
     updateType();

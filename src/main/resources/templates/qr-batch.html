@@ -49,6 +49,24 @@
                         <label class="form-label fw-semibold" for="batchLogo">Logo <span class="text-body-secondary fw-normal">(optional)</span></label>
                         <input class="form-control" id="batchLogo" type="file" accept="image/png,image/jpeg">
                     </div>
+                    <div class="col-sm-6 col-lg-5">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label class="form-label fw-semibold" for="batchCornerRadius">QR-Eckenrundung</label>
+                            <output class="badge rounded-pill text-bg-light" id="batchCornerRadiusValue" for="batchCornerRadius">0 %</output>
+                        </div>
+                        <input class="form-range" id="batchCornerRadius" type="range" min="0" max="50" step="5" value="0"
+                               aria-describedby="batchCornerRadiusHint">
+                        <div class="form-text mt-0" id="batchCornerRadiusHint">Rundet die Module und Markierungen des QR-Codes.</div>
+                    </div>
+                    <div class="col-sm-6 col-lg-5">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label class="form-label fw-semibold" for="batchImageCornerRadius">Bild-Eckenrundung</label>
+                            <output class="badge rounded-pill text-bg-light" id="batchImageCornerRadiusValue" for="batchImageCornerRadius">4 %</output>
+                        </div>
+                        <input class="form-range" id="batchImageCornerRadius" type="range" min="0" max="25" step="1" value="4"
+                               aria-describedby="batchImageCornerRadiusHint">
+                        <div class="form-text mt-0" id="batchImageCornerRadiusHint">Rundet nur die Außenkante der PNG-Bilder transparent ab.</div>
+                    </div>
                     <div class="col-12 d-grid d-sm-flex align-items-center gap-3">
                         <button class="btn btn-primary btn-lg px-5" id="generateBatch" type="submit">
                             QR-Codes erzeugen
@@ -82,6 +100,7 @@
 
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <script th:src="@{/webjars/bootstrap/5.3.7/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/qr-filename.js}"></script>
 <script th:src="@{/js/qr-batch.js}"></script>
 </body>
 </html>

@@ -3,11 +3,24 @@ package de.jensgiehl.marcqr.qr;
 import java.awt.Color;
 import java.util.regex.Pattern;
 
-public record QrSettings(int size, String foreground, String background) {
+public record QrSettings(int size, String foreground, String background,
+                         int cornerRadius, int imageCornerRadius) {
 
     public static final int MIN_SIZE = 160;
     public static final int MAX_SIZE = 1_200;
+    public static final int DEFAULT_CORNER_RADIUS = 0;
+    public static final int MAX_CORNER_RADIUS = 50;
+    public static final int DEFAULT_IMAGE_CORNER_RADIUS = 4;
+    public static final int MAX_IMAGE_CORNER_RADIUS = 25;
     private static final Pattern HEX_COLOR = Pattern.compile("#[0-9a-fA-F]{6}");
+
+    public QrSettings(int size, String foreground, String background) {
+        this(size, foreground, background, DEFAULT_CORNER_RADIUS, DEFAULT_IMAGE_CORNER_RADIUS);
+    }
+
+    public QrSettings(int size, String foreground, String background, int cornerRadius) {
+        this(size, foreground, background, cornerRadius, DEFAULT_IMAGE_CORNER_RADIUS);
+    }
 
     public QrSettings {
         if (size < MIN_SIZE || size > MAX_SIZE) {
@@ -23,6 +36,14 @@ public record QrSettings(int size, String foreground, String background) {
         }
         if (contrastRatio(foreground, background) < 3.0) {
             throw new QrValidationException("Der Farbkontrast ist zu gering. Bitte deutlichere Farben wählen.");
+        }
+        if (cornerRadius < 0 || cornerRadius > MAX_CORNER_RADIUS) {
+            throw new QrValidationException("Die QR-Eckenrundung muss zwischen 0 und %d Prozent liegen."
+                    .formatted(MAX_CORNER_RADIUS));
+        }
+        if (imageCornerRadius < 0 || imageCornerRadius > MAX_IMAGE_CORNER_RADIUS) {
+            throw new QrValidationException("Die Bild-Eckenrundung muss zwischen 0 und %d Prozent liegen."
+                    .formatted(MAX_IMAGE_CORNER_RADIUS));
         }
     }
 
