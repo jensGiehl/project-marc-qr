@@ -1,6 +1,7 @@
 package de.jensgiehl.marcqr.qr;
 
 import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -19,10 +20,13 @@ public class QrController {
 
     private final QrCodeService qrCodeService;
     private final BatchQrService batchQrService;
+    private final BatchQrArchiveService batchQrArchiveService;
 
-    public QrController(QrCodeService qrCodeService, BatchQrService batchQrService) {
+    public QrController(QrCodeService qrCodeService, BatchQrService batchQrService,
+                        BatchQrArchiveService batchQrArchiveService) {
         this.qrCodeService = qrCodeService;
         this.batchQrService = batchQrService;
+        this.batchQrArchiveService = batchQrArchiveService;
     }
 
     @GetMapping("/qr")
@@ -67,6 +71,25 @@ public class QrController {
             @RequestParam(required = false) MultipartFile logo) throws IOException {
         return batchQrService.generate(lines,
                 new QrSettings(size, foreground, background, cornerRadius, imageCornerRadius), readLogo(logo));
+    }
+
+    @PostMapping(path = "/api/qr/batch/zip", produces = "application/zip")
+    @ResponseBody
+    public ResponseEntity<byte[]> downloadBatch(
+            @RequestParam String lines,
+            @RequestParam(defaultValue = "300") int size,
+            @RequestParam(defaultValue = "#132238") String foreground,
+            @RequestParam(defaultValue = "#ffffff") String background,
+            @RequestParam(defaultValue = "0") int cornerRadius,
+            @RequestParam(defaultValue = "4") int imageCornerRadius,
+            @RequestParam(required = false) MultipartFile logo) throws IOException {
+        List<BatchQrItem> items = batchQrService.generate(lines,
+                new QrSettings(size, foreground, background, cornerRadius, imageCornerRadius), readLogo(logo));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=qr-codes.zip")
+                .contentType(MediaType.parseMediaType("application/zip"))
+                .body(batchQrArchiveService.create(items));
     }
 
     private byte[] readLogo(MultipartFile logo) throws IOException {

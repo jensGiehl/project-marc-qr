@@ -12,6 +12,7 @@ Marc QR ist eine mobile-first Spring-Boot-Webanwendung zum Erstellen gestalteter
 | `GET /codes` | Eindeutige Codes konfigurieren und als Excel-Datei exportieren |
 | `POST /api/qr` | PNG für die Live-Vorschau erzeugen |
 | `POST /api/qr/batch` | QR-Code-Stapel als JSON erzeugen |
+| `POST /api/qr/batch/zip` | QR-Code-Stapel als ZIP-Datei herunterladen |
 | `POST /codes/excel` | Generierte Codes direkt als `.xlsx` herunterladen |
 
 Die Startseite öffnet jeden ausgewählten Service in einem neuen Browser-Tab.
@@ -29,6 +30,8 @@ Die Startseite öffnet jeden ausgewählten Service in einem neuen Browser-Tab.
 - Kapazitätsanzeige und serverseitige Prüfung passend zu Inhalt und Fehlerkorrektur
 - Download als PNG mit einem aus dem Inhalt abgeleiteten, bereinigten Dateinamen; bei Webadressen wird nur die Domain verwendet
 - Stapelerzeugung für bis zu 100 nicht leere Zeilen; Web- und E-Mail-Adressen werden automatisch erkannt
+- Live-Anzeige der aktuell eingegebenen QR-Code-Anzahl direkt am Generieren-Button
+- gemeinsamer ZIP-Download aller erzeugten QR-Codes mit bereinigten, aus dem jeweiligen Inhalt abgeleiteten Dateinamen
 
 ### Zufallscodes und Excel
 

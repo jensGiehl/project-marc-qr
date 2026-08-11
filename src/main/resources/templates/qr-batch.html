@@ -69,7 +69,7 @@
                     </div>
                     <div class="col-12 d-grid d-sm-flex align-items-center gap-3">
                         <button class="btn btn-primary btn-lg px-5" id="generateBatch" type="submit">
-                            QR-Codes erzeugen
+                            QR-Codes erzeugen (0)
                         </button>
                         <span class="text-body-secondary small" id="batchStatus" aria-live="polite"></span>
                     </div>
@@ -86,7 +86,10 @@
                     <span class="eyebrow">Ergebnis</span>
                     <h2 class="h3 mb-0 mt-1" id="resultTitle">Erzeugte QR-Codes</h2>
                 </div>
-                <span class="badge rounded-pill text-bg-light fs-6" id="resultCount"></span>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <span class="badge rounded-pill text-bg-light fs-6" id="resultCount"></span>
+                    <button class="btn btn-primary" id="downloadAll" type="button">Download all</button>
+                </div>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0 batch-table">
@@ -98,9 +101,23 @@
     </section>
 </main>
 
+<div class="modal fade" id="downloadWaitModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="downloadWaitTitle" aria-describedby="downloadWaitText" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-body p-5 text-center">
+                <div class="spinner-border text-primary mb-4" role="status">
+                    <span class="visually-hidden">Bitte warten</span>
+                </div>
+                <h2 class="h4" id="downloadWaitTitle">Bitte warten …</h2>
+                <p class="text-body-secondary mb-0" id="downloadWaitText">Die QR-Codes werden als ZIP-Datei vorbereitet.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <footer th:replace="~{fragments/layout :: footer}"></footer>
 <script th:src="@{/webjars/bootstrap/5.3.7/js/bootstrap.bundle.min.js}"></script>
-<script th:src="@{/js/qr-filename.js}"></script>
 <script th:src="@{/js/qr-batch.js}"></script>
 </body>
 </html>

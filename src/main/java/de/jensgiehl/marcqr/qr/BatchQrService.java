@@ -17,9 +17,11 @@ public class BatchQrService {
             Pattern.CASE_INSENSITIVE);
 
     private final QrCodeService qrCodeService;
+    private final QrFilenameService qrFilenameService;
 
-    public BatchQrService(QrCodeService qrCodeService) {
+    public BatchQrService(QrCodeService qrCodeService, QrFilenameService qrFilenameService) {
         this.qrCodeService = qrCodeService;
+        this.qrFilenameService = qrFilenameService;
     }
 
     public List<BatchQrItem> generate(String lines, QrSettings settings, byte[] logoBytes) {
@@ -43,7 +45,7 @@ public class BatchQrService {
             DetectedContent detected = detect(input);
             byte[] png = qrCodeService.generate(detected.payload(), settings, logoBytes);
             result.add(new BatchQrItem(input, detected.type(), detected.payload(),
-                    Base64.getEncoder().encodeToString(png)));
+                    Base64.getEncoder().encodeToString(png), qrFilenameService.create(input)));
         }
         return result;
     }

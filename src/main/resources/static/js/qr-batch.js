@@ -10,10 +10,14 @@
     const resultSection = document.querySelector('#batchResults');
     const resultBody = document.querySelector('#batchResultBody');
     const resultCount = document.querySelector('#resultCount');
+    const downloadAll = document.querySelector('#downloadAll');
+    const downloadWaitElement = document.querySelector('#downloadWaitModal');
+    const downloadWaitModal = bootstrap.Modal.getOrCreateInstance(downloadWaitElement);
     const cornerRadius = document.querySelector('#batchCornerRadius');
     const cornerRadiusValue = document.querySelector('#batchCornerRadiusValue');
     const imageCornerRadius = document.querySelector('#batchImageCornerRadius');
     const imageCornerRadiusValue = document.querySelector('#batchImageCornerRadiusValue');
+    let lastBatchRequest;
 
     function nonEmptyLines() {
         return lines.value.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
@@ -23,6 +27,7 @@
         const count = nonEmptyLines().length;
         counter.textContent = `${count} / 100`;
         counter.classList.toggle('text-danger', count > 100);
+        if (!button.disabled) button.textContent = `QR-Codes erzeugen (${count})`;
     }
 
     form.addEventListener('submit', async event => {
@@ -35,26 +40,19 @@
         }
 
         button.disabled = true;
-        button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Wird erzeugt …';
+        button.innerHTML = `<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Wird erzeugt (${inputs.length}) …`;
         status.textContent = 'Je nach Anzahl kann das einen Moment dauern.';
 
-        const data = new FormData();
-        data.append('lines', lines.value);
-        data.append('size', document.querySelector('#batchSize').value);
-        data.append('foreground', document.querySelector('#batchForeground').value);
-        data.append('background', document.querySelector('#batchBackground').value);
-        data.append('cornerRadius', cornerRadius.value);
-        data.append('imageCornerRadius', imageCornerRadius.value);
-        const logo = document.querySelector('#batchLogo').files[0];
-        if (logo) data.append('logo', logo);
+        const request = captureRequest();
 
         try {
-            const response = await fetch('/api/qr/batch', { method: 'POST', body: data });
+            const response = await fetch('/api/qr/batch', { method: 'POST', body: createFormData(request) });
             if (!response.ok) {
                 const problem = await response.json().catch(() => ({ message: 'Die QR-Codes konnten nicht erstellt werden.' }));
                 throw new Error(problem.message);
             }
             const items = await response.json();
+            lastBatchRequest = request;
             renderResults(items);
             status.textContent = `${items.length} QR-Code${items.length === 1 ? '' : 's'} erfolgreich erzeugt.`;
         } catch (requestError) {
@@ -62,9 +60,72 @@
             status.textContent = '';
         } finally {
             button.disabled = false;
-            button.textContent = 'QR-Codes erzeugen';
+            updateLineCounter();
         }
     });
+
+    downloadAll.addEventListener('click', async () => {
+        if (!lastBatchRequest) return;
+
+        error.classList.add('d-none');
+        downloadAll.disabled = true;
+        await showDownloadWaitModal();
+
+        try {
+            const response = await fetch('/api/qr/batch/zip', {
+                method: 'POST',
+                body: createFormData(lastBatchRequest)
+            });
+            if (!response.ok) {
+                const problem = await response.json().catch(() => ({ message: 'Die ZIP-Datei konnte nicht erstellt werden.' }));
+                throw new Error(problem.message);
+            }
+            const archiveUrl = URL.createObjectURL(await response.blob());
+            const link = document.createElement('a');
+            link.href = archiveUrl;
+            link.download = 'qr-codes.zip';
+            link.click();
+            window.setTimeout(() => URL.revokeObjectURL(archiveUrl), 1_000);
+            status.textContent = 'Die ZIP-Datei wurde erfolgreich erstellt.';
+        } catch (requestError) {
+            showError(requestError.message);
+        } finally {
+            downloadWaitModal.hide();
+            downloadAll.disabled = false;
+        }
+    });
+
+    function showDownloadWaitModal() {
+        if (downloadWaitElement.classList.contains('show')) return Promise.resolve();
+        return new Promise(resolve => {
+            downloadWaitElement.addEventListener('shown.bs.modal', resolve, { once: true });
+            downloadWaitModal.show();
+        });
+    }
+
+    function captureRequest() {
+        return {
+            lines: lines.value,
+            size: document.querySelector('#batchSize').value,
+            foreground: document.querySelector('#batchForeground').value,
+            background: document.querySelector('#batchBackground').value,
+            cornerRadius: cornerRadius.value,
+            imageCornerRadius: imageCornerRadius.value,
+            logo: document.querySelector('#batchLogo').files[0]
+        };
+    }
+
+    function createFormData(request) {
+        const data = new FormData();
+        data.append('lines', request.lines);
+        data.append('size', request.size);
+        data.append('foreground', request.foreground);
+        data.append('background', request.background);
+        data.append('cornerRadius', request.cornerRadius);
+        data.append('imageCornerRadius', request.imageCornerRadius);
+        if (request.logo) data.append('logo', request.logo);
+        return data;
+    }
 
     function renderResults(items) {
         resultBody.replaceChildren();
@@ -92,7 +153,7 @@
             const link = document.createElement('a');
             link.className = 'btn btn-outline-primary btn-sm';
             link.href = image.src;
-            link.download = QrFilename.create(item.input, item.type === 'Webseite');
+            link.download = item.filename;
             link.textContent = 'PNG';
             downloadCell.append(link);
 

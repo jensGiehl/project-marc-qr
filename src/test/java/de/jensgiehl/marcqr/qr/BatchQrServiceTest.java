@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class BatchQrServiceTest {
 
-    private final BatchQrService service = new BatchQrService(new QrCodeService());
+    private final BatchQrService service = new BatchQrService(new QrCodeService(), new QrFilenameService());
 
     @Test
     void skipsEmptyLinesAndDetectsContentTypes() {
@@ -17,5 +17,7 @@ class BatchQrServiceTest {
         assertThat(items.getFirst().payload()).isEqualTo("https://example.org/path");
         assertThat(items.get(1).payload()).isEqualTo("mailto:mail@example.org");
         assertThat(items).allSatisfy(item -> assertThat(item.imageBase64()).isNotBlank());
+        assertThat(items).extracting(BatchQrItem::filename)
+                .containsExactly("exampleorgpath.png", "mailexampleorg.png", "Hallo.png");
     }
 }
